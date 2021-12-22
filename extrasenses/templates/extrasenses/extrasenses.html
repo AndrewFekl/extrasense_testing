@@ -1,0 +1,49 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1> Тестирование экстрасенсорных способностей</h1>
+<div class = 'user'>
+    {% if guess_trigger %}
+    <h3> Загадайте 2-х значное число и нажмите кнопку "Угадать"</h3>
+    <form action='' method = 'POST'>
+    {% csrf_token %}
+
+    <input type="submit" value="Угадать">
+    </form>
+
+    {% else %}
+    <h3>Введите загаданное число для проверки экстрасенсов</h3>
+    <form action='' method = 'POST'>
+        {% csrf_token %}
+        <label for="put_up_number">Загаданное число</label>
+        <input type="text" id="hidden_number" name="hidden_number">
+        <input type="submit" value="Отправить">
+    </form>
+
+    {% endif %}
+    <p>Загаданные числа:
+        {% if user_story.len > 0 %}
+            {% for line in user_story %}
+            <span>{{line}}, </span>
+            {% endfor %}
+        {% else %}
+            <span>Вы пока не ввели ни одного числа</span>
+        {% endif %}
+
+    </p>
+</div>
+<div class = 'extrasenses'>
+    <h3>Результаты работы экстрасенсов</h3>
+    {% for key, extrasens in extrasenses.items %}
+
+    <h4>{{extrasens.name}}</h4>
+    <p><b>Ответ: </b></p>
+    <p>Количество попыток: {{extrasens.attempts}}</p>
+    <p>Количество угаданных ответов: {{extrasens.coincidence}}</p>
+    <p>Рейтинг (процент угаданных ответов): {{extrasens.raiting}}</p>
+
+    {% endfor %}
+</div>
+
+{% endblock content %}

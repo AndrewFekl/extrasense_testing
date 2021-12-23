@@ -17,7 +17,7 @@
     <form action='' method = 'POST'>
         {% csrf_token %}
         <label for="put_up_number">Загаданное число</label>
-        <input type="text" id="hidden_number" name="hidden_number">
+        <input type="text" id="put_up_number" name="put_up_number">
         <input type="submit" value="Отправить">
     </form>
 
@@ -38,7 +38,7 @@
     {% for key, extrasens in extrasenses.items %}
 
     <h4>{{extrasens.name}}</h4>
-    <p><b>Ответ: </b></p>
+    <p><b>Ответ: {% if extrasens.current_answer %} {{extrasens.current_answer}} {% endif %}</b></p>
     <p>Количество попыток: {{extrasens.attempts}}</p>
     <p>Количество угаданных ответов: {{extrasens.coincidence}}</p>
     <p>Рейтинг (процент угаданных ответов): {{extrasens.raiting}}</p>

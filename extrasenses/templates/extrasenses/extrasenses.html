@@ -42,6 +42,16 @@
     <p>Количество попыток: {{extrasens.attempts}}</p>
     <p>Количество угаданных ответов: {{extrasens.coincidence}}</p>
     <p>Рейтинг (процент угаданных ответов): {{extrasens.raiting}}</p>
+    <p>Данные ответы :
+        {% if extrasenses_stories.key.len > 0 %}
+            {% for line in extrasenses_stories.key %}
+            <span>{{line}}, </span>
+            {% endfor %}
+        {% else %}
+            <span>"Экстрасенс пока не дал ни одного ответа"</span>
+        {% endif %}
+
+    </p>
 
     {% endfor %}
 </div>

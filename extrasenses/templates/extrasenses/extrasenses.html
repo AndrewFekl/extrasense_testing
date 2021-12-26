@@ -1,14 +1,16 @@
 {% extends 'main.html' %}
+{% load extrasenses_extras%}
 
 {% block content %}
 
 <h1> Тестирование экстрасенсорных способностей</h1>
 <div class = 'user'>
+
     {% if guess_trigger %}
+
     <h3> Загадайте 2-х значное число и нажмите кнопку "Угадать"</h3>
     <form action='' method = 'POST'>
     {% csrf_token %}
-
     <input type="submit" value="Угадать">
     </form>
 
@@ -20,10 +22,9 @@
         <input type="text" id="put_up_number" name="put_up_number">
         <input type="submit" value="Отправить">
     </form>
-
     {% endif %}
-    <p>Загаданные числа:
-        {% if user_story.len > 0 %}
+    <p><b> Загаданные числа: </b></p>
+        {% if user_story|length > 0 %}
             {% for line in user_story %}
             <span>{{line}}, </span>
             {% endfor %}
@@ -31,28 +32,28 @@
             <span>Вы пока не ввели ни одного числа</span>
         {% endif %}
 
-    </p>
+
 </div>
+
 <div class = 'extrasenses'>
     <h3>Результаты работы экстрасенсов</h3>
+
     {% for key, extrasens in extrasenses.items %}
-
     <h4>{{extrasens.name}}</h4>
-    <p><b>Ответ: {% if extrasens.current_answer %} {{extrasens.current_answer}} {% endif %}</b></p>
-    <p>Количество попыток: {{extrasens.attempts}}</p>
-    <p>Количество угаданных ответов: {{extrasens.coincidence}}</p>
-    <p>Рейтинг (процент угаданных ответов): {{extrasens.raiting}}</p>
-    <p>Данные ответы :
-        {% if extrasenses_stories.key.len > 0 %}
-            {% for line in extrasenses_stories.key %}
+
+    <p><b>Ответ: {% if extrasenses_answers|dict_value_or_null:key %} {{extrasenses_answers|dict_value_or_null:key }} {% endif %}</b></p>
+    <p>Количество попыток: {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:0 }}</p>
+    <p>Количество правильных ответов: {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:1 }}</p>
+    <p>Рэйтинг (процент правильных ответов): {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:2 }}</p>
+
+    <p><b>Данные ответы : </b></p>
+    {% if extrasenses_stories|dict_value_or_null:key|length > 0 %}
+        {% for line in extrasenses_stories|dict_value_or_null:key %}
             <span>{{line}}, </span>
-            {% endfor %}
-        {% else %}
-            <span>"Экстрасенс пока не дал ни одного ответа"</span>
-        {% endif %}
-
-    </p>
-
+        {% endfor %}
+    {% else %}
+        <span>Экстрасенс пока не дал ни одного ответа</span>
+    {% endif %}
     {% endfor %}
 </div>
 

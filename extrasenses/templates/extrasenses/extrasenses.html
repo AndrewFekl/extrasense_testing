@@ -44,7 +44,7 @@
     <p><b>Ответ: {% if extrasenses_answers|dict_value_or_null:key %} {{extrasenses_answers|dict_value_or_null:key }} {% endif %}</b></p>
     <p>Количество попыток: {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:0 }}</p>
     <p>Количество правильных ответов: {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:1 }}</p>
-    <p>Рэйтинг (процент правильных ответов): {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:2 }}</p>
+    <p>Рэйтинг (процент правильных ответов): {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:2 }} %</p>
 
     <p><b>Данные ответы : </b></p>
     {% if extrasenses_stories|dict_value_or_null:key|length > 0 %}

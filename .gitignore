@@ -1,6 +1,7 @@
 *.py[co] 
 __pycache__
 .* 
-!.gitignore 
-env/ 
+!.gitignore
+test_work.pdf
+env/
  

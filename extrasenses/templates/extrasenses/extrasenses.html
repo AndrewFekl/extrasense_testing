@@ -8,18 +8,18 @@
 
     {% if guess_trigger %}
 
-    <h3> Загадайте 2-х значное число и нажмите кнопку "Угадать"</h3>
+    <h3> Загадайте 2-х значное число от 0 до 99 и нажмите кнопку "Угадать"</h3>
     <form action='' method = 'POST'>
     {% csrf_token %}
     <input type="submit" value="Угадать">
     </form>
 
     {% else %}
-    <h3>Введите загаданное число для проверки экстрасенсов</h3>
+    <h3>Введите загаданное вами 2-х значное число для оценки эффективности экстрасенсов</h3>
     <form action='' method = 'POST'>
         {% csrf_token %}
         <label for="put_up_number">Загаданное число</label>
-        <input type="text" id="put_up_number" name="put_up_number" required>
+        <input type="text" id="put_up_number" name="put_up_number" pattern="[0-9]{1,2}" title="Введите число от 0 до 99" required>
         <input type="submit" value="Отправить">
     </form>
     {% endif %}

@@ -1,0 +1,41 @@
+{% extends 'main.html' %}
+{% load extrasenses_extras %}
+
+{% block content %}
+
+<h1>Результаты тестирования экстрасенсов</h1>
+
+<div class = 'user'>
+    <p><b> Загаданные числа: </b></p>
+    {% if user_story|length > 0 %}
+        {% for line in user_story %}
+            <span>{{line}}, </span>
+        {% endfor %}
+    {% else %}
+        <span>Вы пока не ввели ни одного числа</span>
+    {% endif %}
+
+</div>
+
+<div class = 'extrasenses'>
+
+    {% for key, extrasens in extrasenses.items %}
+    <h4>{{extrasens.name}}</h4>
+
+    <p>Количество попыток: {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:0 }}</p>
+    <p>Количество правильных ответов: {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:1 }}</p>
+    <p>Рэйтинг (по шкале от 0 до 1): {{ extrasenses_data|dict_value_or_null:key|list_value_or_null:2 }}</p>
+
+    <p><b>Данные ответы : </b></p>
+    {% if extrasenses_stories|dict_value_or_null:key|length > 0 %}
+        {% for line in extrasenses_stories|dict_value_or_null:key %}
+            <span>{{line}}, </span>
+        {% endfor %}
+    {% else %}
+        <span>Экстрасенс пока не дал ни одного ответа</span>
+    {% endif %}
+    {% endfor %}
+</div>
+
+
+{% endblock content %}

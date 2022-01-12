@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic.base import View
 from .subject_area_methods import Extrasens, RandomForecast, OnlyNewRandomForecast
+from .models import SessionStorage
 
 
 class ExtrasensesView(View):
@@ -18,86 +19,88 @@ class ExtrasensesView(View):
         # Инициируем словарь объектов экстрасенсов
         self.extrasenses = {'1': Extrasens('John'), '2': Extrasens('Moana', OnlyNewRandomForecast())}
 
+        # Создаем объект для записи и получения данных из сессий
+        self.session_storage = SessionStorage()
+
+
     def get(self, request):
-        # список загаданных слов пользователя
-        request.session['user_story'] = []
-        # словари для хранения истории ответов экстрасенсов, текущих ответов и рейтингов
-        request.session['extrasenses_stories'] = {}
-        request.session['extrasenses_answers'] = {}
-        request.session['extrasenses_data'] = {}
 
-        for key in self.extrasenses.keys():
-            extrasenses_stories = request.session['extrasenses_stories']
-            extrasenses_stories[key] = []
-            request.session['extrasenses_stories'] = extrasenses_stories
-
-            extrasenses_answers = request.session['extrasenses_answers']
-            extrasenses_answers[key] = None
-            request.session['extrasenses_answers'] = extrasenses_answers
-
-            extrasenses_data = request.session['extrasenses_data']
-            extrasenses_data[key] = [0, 0, 0]
-            request.session['extrasenses_data'] = extrasenses_data
-
-
-        context = {'guess_trigger': self.guess_trigger,
-                   'extrasenses': self.extrasenses,
-                   'user_story': request.session['user_story'],
-                   'extrasenses_stories': request.session['extrasenses_stories'],
-                   'extrasenses_answers': request.session['extrasenses_answers'],
-                   'extrasenses_data': request.session['extrasenses_data']
-                   }
+        context = self.session_storage.get_context(request)
+        context.update({'guess_trigger': self.guess_trigger, 'extrasenses': self.extrasenses})
 
         return render(request, 'extrasenses/extrasenses.html', context)
 
+
     def post(self, request):
-        # После нажатия кнопки Угадать без передачи параметра из поля ответв
+        # После нажатия кнопки Угадать без передачи параметра из поля ответа
         if not 'put_up_number' in request.POST:
+
             for key, extrasens in self.extrasenses.items():
-                extrasenses_answers = request.session['extrasenses_answers']
+
                 answer = extrasens.guess_number()
-                extrasenses_answers[key] = answer
-                request.session['extrasenses_answers'] = extrasenses_answers
+                self.session_storage.update_extrasens_answers(request, key, answer)
+
             self.guess_trigger = False
-            context = {'guess_trigger': self.guess_trigger,
-                   'extrasenses': self.extrasenses,
-                   'user_story': request.session['user_story'],
-                   'extrasenses_stories': request.session['extrasenses_stories'],
-                   'extrasenses_answers': request.session['extrasenses_answers'],
-                   'extrasenses_data': request.session['extrasenses_data']
-                   }
+
+            context = self.session_storage.get_context(request)
+            context.update({'guess_trigger': self.guess_trigger, 'extrasenses': self.extrasenses})
 
             return render(request, 'extrasenses/extrasenses.html', context)
 
         # Когда из формы передается загаданное число
         put_up_number = request.POST['put_up_number']
         # Обновляем историю загаданных чисел пользователя
-        user_story = request.session['user_story']
-        request.session['user_story'] = user_story + [put_up_number]
+        self.session_storage.update_user_story(request, put_up_number)
 
         # Обновляем историю ответов и статистику экстрасенсов
         for key, extrasens in self.extrasenses.items():
-            answer = request.session['extrasenses_answers'][key]
-            request.session['extrasenses_data'][key][0] += 1
-            if int(put_up_number) == answer:
-                request.session['extrasenses_data'][key][1] += 1
-            if request.session['extrasenses_data'][key][0] != 0:
-                raiting = request.session['extrasenses_data'][key][1] / request.session['extrasenses_data'][key][0] * 100
-                raiting = round(raiting, 2)
-                request.session['extrasenses_data'][key][2] = raiting
-            request.session['extrasenses_stories'][key].append(answer)
-            request.session['extrasenses_answers'][key] = None
+
+            self.session_storage.update_extrasens_story(request, key)
+
+            self.session_storage.update_extrasens_data(request, key, put_up_number)
+
+            self.session_storage.update_extrasens_answers(request, key, None)
 
         self.guess_trigger = True
 
-        context = {'guess_trigger': self.guess_trigger,
-                   'extrasenses': self.extrasenses,
-                   'user_story': request.session['user_story'],
-                   'extrasenses_stories': request.session['extrasenses_stories'],
-                   'extrasenses_answers': request.session['extrasenses_answers'],
-                   'extrasenses_data': request.session['extrasenses_data']
-                   }
+        context = self.session_storage.get_context(request)
+        context.update({'guess_trigger': self.guess_trigger, 'extrasenses': self.extrasenses})
+
         return render(request, 'extrasenses/extrasenses.html', context)
+
+
+def MainView(request):
+    # Представление отображает главную страницу и устанавливает начальные значения в сессии
+
+    extrasenses = {'1': Extrasens('John'), '2': Extrasens('Moana', OnlyNewRandomForecast())}
+    extrasenses_keys = extrasenses.keys()
+
+    session_storage = SessionStorage()
+    session_storage.set_start_values(request, extrasenses_keys)
+
+    return render(request, 'extrasenses/main_page.html')
+
+
+class ResultsView(View):
+    # Представление возвращает статистику работы экстрасенсов и тестировщика
+
+    def __init__(self, *args, **kwargs):
+        super(ResultsView, self).__init__(*args, **kwargs)
+
+        # Инициируем словарь объектов экстрасенсов
+        self.extrasenses = {'1': Extrasens('John'), '2': Extrasens('Moana', OnlyNewRandomForecast())}
+
+        # Создаем объект для записи и получения данных из сессий
+        self.session_storage = SessionStorage()
+
+    def get(self, request):
+        context = self.session_storage.get_context(request)
+        context.update({'extrasenses': self.extrasenses})
+
+        return render(request, 'extrasenses/results_page.html', context)
+
+
+
 
 
 

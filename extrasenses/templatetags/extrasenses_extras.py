@@ -10,7 +10,7 @@ def dict_value_or_null(dict, key):
 
 @register.filter(name='list_value_or_null')
 def list_value_or_null(values_list, key):
-    if len(values_list) == 3:
+    if len(values_list) == 4:
         return values_list[key]
     else:
         return 'null'

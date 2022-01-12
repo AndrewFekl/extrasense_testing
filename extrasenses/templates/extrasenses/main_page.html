@@ -1,0 +1,12 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1>Приветствуем вас, уважаемый пользователь!</h1>
+<h2>На этом портале вы можете принять участие в тестировании экстрасенсов</h2>
+
+<div>
+    <a href = "{% url 'extrasenses-testing' %}"><button>Начать тестирование</button></a>
+</div>
+
+{% endblock content %}

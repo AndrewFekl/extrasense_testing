@@ -8,10 +8,6 @@ class SessionStorage:
 
     def set_start_values(self, request, extrasenses_keys):
         # Метод устанавливает стартовое значение атрибутов внутри сессии
-        del request.session['user_story']
-        del request.session['extrasenses_stories']
-        del request.session['extrasenses_answers']
-        del request.session['extrasenses_data']
 
         # Список загаданных слов пользователя
         user_story = []
